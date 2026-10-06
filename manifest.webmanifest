@@ -1,0 +1,8 @@
+{
+  "name": "ASAGIRI DAYS｜朝霧高原観光ナビ",
+  "short_name": "ASAGIRI DAYS",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f7f4",
+  "theme_color": "#0b6b5b"
+}
