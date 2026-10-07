@@ -3,77 +3,206 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b6b5b">
-<title>ASAGIRI DAYS｜朝霧高原観光ナビ</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="styles.css">
+<meta name="theme-color" content="#0f6c50">
+<title>富士宮アウトドア</title>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--green:#0f6c50;--green2:#248365;--deep:#164c3c;--ink:#18372e;--muted:#6d7f79;--line:#dbe7e1;--bg:#edf4f1;--card:#fff;--shadow:0 8px 26px rgba(22,76,60,.10)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;padding-bottom:82px}
+button,input{font:inherit}
+.hero{padding:20px 16px 24px;background:
+linear-gradient(180deg,rgba(215,240,248,.98),rgba(220,239,227,.96)),
+linear-gradient(135deg,#c7e9f5,#c8e6d2);position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;left:-5%;right:-5%;bottom:-65px;height:150px;border-radius:50% 50% 0 0;background:#9fc8ac;opacity:.7}
+.hero:after{content:"▲";position:absolute;right:9%;bottom:17px;font-size:95px;line-height:1;color:#6b9c84;opacity:.7;transform:scaleX(1.8)}
+.hero-inner{max-width:1020px;margin:auto;position:relative;z-index:2}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:15px;background:var(--green);display:grid;place-items:center;color:#fff;font-size:25px;box-shadow:var(--shadow)}
+h1{margin:0;font-size:clamp(26px,6vw,44px);letter-spacing:.03em}
+.sub{margin:5px 0 0;color:#365f52;font-weight:700}
+.main{max-width:1020px;margin:auto;padding:14px}
+.search-wrap{position:sticky;top:0;z-index:500;padding-top:5px;background:linear-gradient(var(--bg) 70%,transparent)}
+.search{display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:20px;padding:0 15px;box-shadow:var(--shadow)}
+.search input{width:100%;border:0;outline:0;background:transparent;padding:15px 8px;font-size:16px}
+.filters{display:flex;gap:8px;overflow:auto;padding:12px 0 8px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 14px;white-space:nowrap;font-weight:800;color:#315a4d;cursor:pointer}
+.chip.active{background:var(--green);border-color:var(--green);color:#fff}
+.utility{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0 12px}
+.count{font-size:13px;color:var(--muted)}
+.sort{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 12px;color:var(--deep);font-weight:800;cursor:pointer}
+.cards{display:grid;gap:11px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;box-shadow:0 5px 17px rgba(23,67,52,.07);display:grid;grid-template-columns:50px 1fr;gap:12px}
+.cat-icon{width:48px;height:48px;border-radius:14px;background:#e7f3ed;display:grid;place-items:center;font-size:26px}
+.topline{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.name{font-size:17px;line-height:1.35;font-weight:900;color:#102d24}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px}
+.tag{font-size:11px;border-radius:999px;padding:5px 8px;font-weight:900;background:#e6f3e9;color:#256348}
+.tag.glamp{background:#fde7e7;color:#9b4e4e}
+.tag.exp{background:#e4f2fa;color:#316d8a}
+.tag.dog{background:#fff1da;color:#795b2a}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;color:#5b7068;font-size:13px}
+.info .wide{grid-column:1/-1}
+.desc{margin:10px 0 12px;color:#455d54;line-height:1.65;font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{text-decoration:none;border:1px solid #c9ddd4;background:#fff;color:var(--deep);border-radius:12px;padding:9px 11px;font-weight:900;font-size:12px;cursor:pointer}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.fav.active{background:#fff1f3;color:#b23f59;border-color:#f1c7d0}
+#mapView{display:none}
+#map{height:calc(100vh - 200px);min-height:510px;border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
+.map-note{font-size:12px;color:var(--muted);margin:0 0 10px}
+.empty{background:#fff;border:1px dashed #b9cdc3;border-radius:18px;padding:40px 18px;text-align:center;color:var(--muted)}
+.bottom{position:fixed;bottom:0;left:0;right:0;z-index:800;background:rgba(255,255,255,.96);backdrop-filter:blur(15px);border-top:1px solid #d9e6e0;padding:7px max(12px,env(safe-area-inset-left)) max(7px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr)}
+.nav{border:0;background:transparent;color:#71827b;display:grid;place-items:center;gap:2px;font-size:11px;font-weight:800;padding:5px;cursor:pointer}
+.nav span:first-child{font-size:22px}
+.nav.active{color:var(--green)}
+@media(max-width:650px){
+  .info{grid-template-columns:1fr}
+  .info .wide{grid-column:auto}
+  .card{grid-template-columns:42px 1fr;padding:13px}
+  .cat-icon{width:42px;height:42px;font-size:23px}
+}
+</style>
 </head>
 <body>
 <header class="hero">
-  <div class="shade"></div>
-  <div class="hero-inner">
-    <div class="eyebrow">FUJINOMIYA • ASAGIRI KOGEN</div>
-    <h1>ASAGIRI DAYS</h1>
-    <p>朝霧高原だけを、気持ちよく巡る。</p>
-    <div class="hero-actions">
-      <button id="browseBtn" class="btn light">✨ おすすめを見る</button>
-      <button id="mapBtn" class="btn glass">🗺 スポットマップ</button>
-    </div>
-  </div>
+ <div class="hero-inner">
+  <div class="brand"><div class="logo">⛺</div><div><h1>富士宮アウトドア</h1><div class="sub">キャンプ場・グランピング・体験を探す</div></div></div>
+ </div>
 </header>
-<main>
-  <section class="search-panel">
-    <div class="search-row">
-      <input id="searchInput" type="search" placeholder="施設名・エリア・キーワードで検索">
-      <button id="clearBtn">×</button>
-    </div>
-    <div id="chips" class="chips"></div>
-  </section>
 
-  <section class="quick-grid">
-    <button data-quick="牧場">🐄<span>牧場</span></button>
-    <button data-quick="グルメ">🍽️<span>グルメ</span></button>
-    <button data-quick="キャンプ">⛺<span>キャンプ</span></button>
-    <button data-quick="自然">🌿<span>自然</span></button>
-    <button data-quick="買い物">🛍️<span>買い物</span></button>
-    <button data-quick="体験">🎟️<span>体験</span></button>
-  </section>
+<main class="main">
+<section id="listView">
+ <div class="search-wrap">
+  <label class="search"><span>🔎</span><input id="q" placeholder="施設名・エリア・キーワードで検索"></label>
+  <div class="filters">
+   <button class="chip active" data-filter="すべて">すべて</button>
+   <button class="chip" data-filter="キャンプ">⛺ キャンプ</button>
+   <button class="chip" data-filter="グランピング">◉ グランピング</button>
+   <button class="chip" data-filter="体験">🌲 体験</button>
+   <button class="chip" data-filter="犬OK">🐾 犬OK</button>
+  </div>
+ </div>
+ <div class="utility"><div class="count" id="count"></div><button class="sort" id="nearBtn">現在地から近い順</button></div>
+ <div class="cards" id="cards"></div>
+</section>
 
-  <section class="toolbar">
-    <div><strong id="resultCount">0</strong><span>スポット</span></div>
-    <select id="sortSelect">
-      <option value="featured">おすすめ順</option>
-      <option value="name">名前順</option>
-    </select>
-  </section>
-
-  <section id="spotList" class="spot-list"></section>
-
-  <section class="note">
-    <h2>朝霧高原を楽しむコツ</h2>
-    <p>富士山を近くに感じながら、牧場・キャンプ・高原グルメ・自然体験をゆったり楽しめるエリアです。天候が変わりやすいため、当日の営業時間・入場条件・道路状況は各施設の公式情報で確認してください。</p>
-  </section>
+<section id="mapView">
+ <p class="map-note">登録施設の位置を地図で確認できます。「サニーサイドアウトドアスクール」は住所不明のため朝霧高原周辺の参考位置です。</p>
+ <div id="map"></div>
+</section>
 </main>
 
-<dialog id="detailDialog">
-  <button id="closeDetail" class="close">×</button>
-  <div id="detailContent"></div>
-</dialog>
-
-<dialog id="mapDialog" class="map-dialog">
-  <button id="closeMap" class="close">×</button>
-  <div class="map-wrap">
-    <h2>朝霧高原スポットマップ</h2>
-    <p>ピンを押すと施設詳細を開きます。</p>
-    <div id="mapCanvas" class="map-canvas"></div>
-  </div>
-</dialog>
-
-<nav class="bottom-nav">
-  <button class="active" data-nav="home">🏠<span>ホーム</span></button>
-  <button data-nav="search">🔎<span>探す</span></button>
-  <button data-nav="fav">♥<span>お気に入り</span></button>
+<nav class="bottom">
+ <button class="nav active" data-nav="home"><span>⌂</span><span>ホーム</span></button>
+ <button class="nav" data-nav="facilities"><span>☷</span><span>施設</span></button>
+ <button class="nav" data-nav="map"><span>⌖</span><span>地図</span></button>
+ <button class="nav" data-nav="favorites"><span>♥</span><span>お気に入り</span></button>
 </nav>
-<script src="app.js"></script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const facilities = [{"name": "ふもとっぱら", "cat": "キャンプ", "dog": false, "address": "静岡県富士宮市麓156", "phone": "0544-52-2112", "hours": "受付 8:30～17:00（定休日なし）", "url": "https://fumotoppara.net", "desc": "目の前に雄大な富士山を望む、日本を代表する大人気の広大な草原フリーサイトキャンプ場。", "lat": 35.3996, "lng": 138.5612}, {"name": "朝霧ジャンボリーオートキャンプ場", "cat": "キャンプ", "dog": false, "address": "静岡県富士宮市猪之頭1162-3", "phone": "0544-52-2066", "hours": "8:00～16:00（通年・年中無休）", "url": "http://asagiri-camp.net/", "desc": "富士山の西麓、朝霧高原の豊かな自然に囲まれた広大なオートキャンプ場。美しい芝生サイトが広がる。", "lat": 35.3865, "lng": 138.5895}, {"name": "田貫湖キャンプ場", "cat": "キャンプ", "dog": false, "address": "静岡県富士宮市佐折634-1", "phone": "0544-27-5240", "hours": "テントサイト IN 8:00 / OUT 12:00（通年営業）", "url": "https://tanukiko.com/", "desc": "田貫湖の湖畔に位置し、ダイヤモンド富士などの絶景を望みながらキャンプや自然散策が楽しめる施設。", "lat": 35.3437, "lng": 138.5604}, {"name": "朝霧Camp Baseそらいろ", "cat": "キャンプ", "dog": false, "address": "静岡県富士宮市麓624-7", "phone": "0544-21-3955", "hours": "受付 9:00～17:00", "url": "https://sorairo-camp.jp", "desc": "トヨタユナイテッド静岡が運営する高規格キャンプ場。富士山を眺めながら快適に大人のアウトドアを満喫できる。", "lat": 35.4043, "lng": 138.5725}, {"name": "富士山YMCA グローバル・エコ・ヴィレッジ", "cat": "体験", "dog": false, "address": "静岡県富士宮市原1423", "phone": "0544-54-1151", "hours": "不明", "url": "http://www.yokohamaymca.org/branch/ymca_fujisan.html", "desc": "広大な敷地と開放的な芝生エリアが広がるキャンプ場・宿泊施設。遮るもののない美しい富士山の景色。", "lat": 35.3575, "lng": 138.5894}, {"name": "アーバンキャンピング朝霧宝山", "cat": "グランピング", "dog": false, "address": "静岡県富士宮市根原字宝山282-1", "phone": "0544-52-0155", "hours": "不明", "url": "https://www.asagiri-hozand.com/", "desc": "富士山の絶景とともに、ラグジュアリーなトレーラーハウスやキャンプを楽しめる高規格アウトドア施設。", "lat": 35.43, "lng": 138.598}, {"name": "Foresters Village Kobitto あさぎりキャンプフィールド", "cat": "キャンプ", "dog": false, "address": "静岡県富士宮市麓627", "phone": "0544-55-5158", "hours": "不明", "url": "https://kobitto.jp/asagiri/", "desc": "木の温もりを感じる林間・高原サイトで、家族や少人数で静かにゆったりと過ごせる人気のキャンプ場。", "lat": 35.405, "lng": 138.574}, {"name": "富士オートキャンプ場ふもと村", "cat": "キャンプ", "dog": false, "address": "静岡県富士宮市麓420", "phone": "0544-52-2395", "hours": "不明", "url": "http://www.fumotomura.co.jp/", "desc": "野趣あふれる林間サイトが特徴で、木立に囲まれながら落ち着いたキャンプが楽しめるアットホームな施設。", "lat": 35.4019, "lng": 138.5688}, {"name": "富士山キャンプランド（富士ミルクランド内）", "cat": "キャンプ", "dog": false, "address": "静岡県富士宮市根原282-1", "phone": "0544-52-0139", "hours": "不明", "url": "https://fujimilkland.com/", "desc": "牧場（富士ミルクランド）に併設されたキャンプ場で、動物との触れ合いや牧場グルメも同時に楽しめる。", "lat": 35.3308, "lng": 138.6104}, {"name": "Field Dogs Garden", "cat": "体験", "dog": true, "address": "静岡県富士宮市人穴381", "phone": "0544-52-2580", "hours": "不明", "url": "https://www.field-dogs-garden.com/", "desc": "愛犬家にはたまらない、広大なドッグランと愛犬と一緒に宿泊・キャンプが楽しめる専用施設。", "lat": 35.3654, "lng": 138.596}, {"name": "GRAN REGALO ASAGIRI（グランレガロあさぎり）", "cat": "グランピング", "dog": true, "address": "静岡県富士宮市上井出2460", "phone": "0544-66-6707", "hours": "9:00～18:00（受付）", "url": "https://www.shizuoka-glamping.com/", "desc": "愛犬とも泊まれるドーム型テントが人気のグランピング施設。富士山を眺めながら快適で贅沢なステイ。", "lat": 35.3195, "lng": 138.6105}, {"name": "MT. FUJI SATOYAMA VACATION", "cat": "グランピング", "dog": false, "address": "静岡県富士宮市狩宿8-2", "phone": "0544-66-5722", "hours": "10:00～17:00（不定休）", "url": "https://satoyama-vacation.com", "desc": "持続可能なエコツーリズムを体験できる、1日限定数組のプライベートグランピング＆里山体験施設。", "lat": 35.3095, "lng": 138.592}, {"name": "スカイ朝霧 パラグライダー・カヌースクール", "cat": "体験", "dog": false, "address": "静岡県富士宮市麓499-1", "phone": "0544-52-2284", "hours": "不明", "url": "https://skyasagiri.jp/", "desc": "富士山を間近に見ながら大空を飛ぶタンデムフライトや、初心者向けのパラグライダー体験スクール。", "lat": 35.4012, "lng": 138.5797}, {"name": "サニーサイドアウトドアスクール", "cat": "体験", "dog": false, "address": "不明", "phone": "不明", "hours": "不明", "url": "https://sunny-side.net/", "desc": "朝霧高原の風を体感できるパラグライダー体験やサバイバルキャンプなどを開催するアウトドアスクール。", "lat": 35.39, "lng": 138.58}];
+let filter="すべて", favoritesOnly=false, userPos=null, map=null, markers=null;
+const favs = new Set(JSON.parse(localStorage.getItem("fujiOutdoorFavs")||"[]"));
+
+const iconFor = c => c==="グランピング" ? "◉" : c==="体験" ? "🌲" : "⛺";
+const tagClass = c => c==="グランピング" ? "glamp" : c==="体験" ? "exp" : "";
+const esc = s => String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function km(a,b,c,d){
+ const R=6371, r=x=>x*Math.PI/180, d1=r(c-a), d2=r(d-b);
+ const x=Math.sin(d1/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(d2/2)**2;
+ return 2*R*Math.asin(Math.sqrt(x));
+}
+function getList(){
+ const q=document.getElementById("q").value.trim().toLowerCase();
+ let a=facilities.filter(f=>{
+   const filterOk=filter==="すべて" || (filter==="犬OK" ? f.dog : f.cat===filter);
+   const favOk=!favoritesOnly || favs.has(f.name);
+   const text=[f.name,f.cat,f.address,f.phone,f.hours,f.desc].join(" ").toLowerCase();
+   return filterOk && favOk && (!q || text.includes(q));
+ });
+ if(userPos) a=a.map(f=>({...f,_dist:km(userPos.lat,userPos.lng,f.lat,f.lng)})).sort((x,y)=>x._dist-y._dist);
+ return a;
+}
+function render(){
+ const a=getList(), box=document.getElementById("cards");
+ document.getElementById("count").textContent=`${a.length}件の施設`;
+ box.innerHTML="";
+ if(!a.length){box.innerHTML='<div class="empty">条件に合う施設がありません。</div>';return}
+ a.forEach(f=>{
+  const dog=f.dog?'<span class="tag dog">🐾 犬OK</span>':"";
+  const dist=userPos&&f._dist!=null?`<span class="tag">${f._dist.toFixed(1)} km</span>`:"";
+  const fav=favs.has(f.name);
+  const card=document.createElement("article");
+  card.className="card";
+  card.innerHTML=`
+   <div class="cat-icon">${iconFor(f.cat)}</div>
+   <div>
+    <div class="topline"><div class="name">${esc(f.name)}</div></div>
+    <div class="tags"><span class="tag ${tagClass(f.cat)}">${esc(f.cat)}</span>${dog}${dist}</div>
+    <div class="info">
+      <div>📍 ${esc(f.address)}</div><div>☎ ${esc(f.phone)}</div>
+      <div class="wide">◷ ${esc(f.hours)}</div>
+    </div>
+    <div class="desc">${esc(f.desc)}</div>
+    <div class="actions">
+      <a class="btn primary" href="${f.url}" target="_blank" rel="noopener">公式サイト</a>
+      <a class="btn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.name+" "+(f.address==="不明"?"朝霧高原 富士宮市":f.address))}" target="_blank" rel="noopener">地図・行き方</a>
+      <button class="btn fav ${fav?"active":""}" data-fav="${esc(f.name)}">${fav?"♥ 保存済み":"♡ お気に入り"}</button>
+    </div>
+   </div>`;
+  box.appendChild(card);
+ });
+ document.querySelectorAll("[data-fav]").forEach(b=>b.onclick=()=>{
+   const n=b.dataset.fav;
+   favs.has(n)?favs.delete(n):favs.add(n);
+   localStorage.setItem("fujiOutdoorFavs",JSON.stringify([...favs]));
+   render();
+ });
+}
+document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{
+ filter=b.dataset.filter; favoritesOnly=false;
+ document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));
+ showList(); render();
+});
+document.getElementById("q").addEventListener("input",render);
+document.getElementById("nearBtn").onclick=()=>{
+ if(!navigator.geolocation){alert("この端末では位置情報を利用できません。");return}
+ navigator.geolocation.getCurrentPosition(p=>{
+   userPos={lat:p.coords.latitude,lng:p.coords.longitude};
+   render();
+   document.getElementById("nearBtn").textContent="近い順で表示中";
+ },()=>alert("位置情報を取得できませんでした。端末の位置情報設定をご確認ください。"));
+};
+function showList(){
+ document.getElementById("listView").style.display="block";
+ document.getElementById("mapView").style.display="none";
+}
+function showMap(){
+ document.getElementById("listView").style.display="none";
+ document.getElementById("mapView").style.display="block";
+ if(!map){
+   map=L.map("map").setView([35.36,138.59],11);
+   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:"© OpenStreetMap contributors"}).addTo(map);
+   markers=L.layerGroup().addTo(map);
+   facilities.forEach(f=>L.marker([f.lat,f.lng]).addTo(markers).bindPopup(`<b>${esc(f.name)}</b><br>${esc(f.cat)}<br>${esc(f.address)}`));
+ }
+ setTimeout(()=>map.invalidateSize(),100);
+}
+document.querySelectorAll(".nav").forEach(n=>n.onclick=()=>{
+ document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active")); n.classList.add("active");
+ const v=n.dataset.nav;
+ if(v==="map"){showMap();return}
+ showList();
+ if(v==="favorites"){favoritesOnly=true; filter="すべて"; document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));}
+ else {favoritesOnly=false;if(v==="home"){filter="すべて";document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x.dataset.filter==="すべて"));}}
+ render();
+});
+render();
+</script>
 </body>
 </html>
